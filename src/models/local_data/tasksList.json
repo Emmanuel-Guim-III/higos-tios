@@ -1,0 +1,38 @@
+[
+  {
+    "id": "0001",
+    "title": "Bake a cake",
+    "notes": "Buy butter and flour",
+    "created_at": "10/28/2022 11:00:00",
+    "started_at": "",
+    "finished_at": "",
+    "important": true
+  },
+  {
+    "id": "0002",
+    "title": "Wash car and bike",
+    "notes": "",
+    "created_at": "10/28/2022 11:00:00",
+    "started_at": "10/30/2022 05:15:12",
+    "finished_at": "10/30/2022 12:15:12",
+    "important": false
+  },
+  {
+    "id": "0003",
+    "title": "Walk the dog",
+    "notes": "Use the new leash",
+    "created_at": "10/28/2022 11:00:00",
+    "started_at": "",
+    "finished_at": "",
+    "important": false
+  },
+  {
+    "id": "0004",
+    "title": "Create new API",
+    "notes": "Consider using PostgreSQL and Node.js",
+    "created_at": "10/28/2022 11:00:00",
+    "started_at": "10/28/2022 12:15:12",
+    "finished_at": "",
+    "important": false
+  }
+]
