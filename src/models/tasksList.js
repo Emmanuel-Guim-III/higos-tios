@@ -14,6 +14,6 @@ function tasksListToJson(value) {
 }
 
 export default {
-  tasksListToJson: tasksListToJson,
-  toTasksList: toTasksList,
+  tasksListToJson,
+  toTasksList,
 };
