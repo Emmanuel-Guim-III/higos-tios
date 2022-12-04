@@ -1,43 +1,40 @@
 import React, { useState } from "react";
 import { Icon, Popup } from "semantic-ui-react";
 
-export default function CustomCheckbox() {
-  const [checkboxOptions, setCheckboxOptions] = useState([
-    { status: "Todo", icon: "square outline", isSelected: true },
-    {
-      status: "Started",
-      icon: "caret square right outline",
-      isSelected: false,
-    },
-    { status: "Done", icon: "check square outline", isSelected: false },
-  ]);
+import Status from "../constants/status";
 
-  function _updateStatus(currentStatus) {
-    const currentStatusIdx = checkboxOptions.findIndex(
-      (checkbox) => checkbox.status === currentStatus
-    );
+const statusOptions = [
+  { key: 0, text: Status.ACTIVE, icon: "square outline" },
+  {
+    key: 1,
+    text: Status.STARTED,
+    icon: "caret square right outline",
+  },
+  { key: 2, text: Status.DONE, icon: "check square outline" },
+];
 
-    const updatedStatusIdx = (currentStatusIdx + 1) % 3;
+export default function CustomCheckbox(props) {
+  const initialStatus = statusOptions.find(
+    (optn) => optn.text === props.initValue
+  );
 
-    const clearedCheckbox = checkboxOptions.map((checkbox) => {
-      return { ...checkbox, isSelected: false };
-    });
+  const [currentStatus, setCurrentStatus] = useState(initialStatus);
 
-    clearedCheckbox[updatedStatusIdx].isSelected = true;
+  function _updateStatus(currentStatusKey) {
+    if (currentStatusKey < 2) {
+      const nextStatusKey = currentStatusKey + 1;
 
-    setCheckboxOptions(clearedCheckbox);
+      setCurrentStatus(statusOptions[nextStatusKey]);
+    }
   }
-
-  const checkbox = checkboxOptions.filter((cb) => cb.isSelected)[0];
-
   return (
     <div
       className="custom-checkbox"
-      onClick={() => _updateStatus(checkbox.status)}
+      onClick={() => _updateStatus(currentStatus.key)}
     >
       <Popup
-        content={checkbox.status}
-        trigger={<Icon name={checkbox.icon} size="large" />}
+        content={currentStatus.text}
+        trigger={<Icon name={currentStatus.icon} size="large" />}
         basic
         size="mini"
       />

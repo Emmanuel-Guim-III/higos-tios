@@ -1,11 +1,8 @@
-const IMPORTANT = "Important";
-const ACTIVE = "Active";
-const STARTED = "Started";
-const DONE = "Done";
-
-export default {
-  IMPORTANT,
-  ACTIVE,
-  STARTED,
-  DONE,
+const Status = {
+  IMPORTANT: "Important",
+  ACTIVE: "Active",
+  STARTED: "Started",
+  DONE: "Done",
 };
+
+export default Status;

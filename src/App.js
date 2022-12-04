@@ -5,17 +5,19 @@ import "./App.scss";
 import AddingModal from "./components/AddingModal";
 import SearchBar from "./components/SearchBar";
 import TasksListView from "./pages/TasksList";
-import tasksListData from "./models/local_data/tasksList.json";
-import status from "./constants/status";
+import Status from "./constants/status";
+import getTasks from "./store/TasksStore";
 
 const statusOptions = [
-  { key: status.IMPORTANT, text: status.IMPORTANT, value: status.IMPORTANT },
-  { key: status.ACTIVE, text: status.ACTIVE, value: status.ACTIVE },
-  { key: status.STARTED, text: status.STARTED, value: status.STARTED },
-  { key: status.DONE, text: status.DONE, value: status.DONE },
+  { key: 0, text: Status.IMPORTANT, value: Status.IMPORTANT },
+  { key: 1, text: Status.ACTIVE, value: Status.ACTIVE },
+  { key: 2, text: Status.STARTED, value: Status.STARTED },
+  { key: 3, text: Status.DONE, value: Status.DONE },
 ];
 
 export default function App() {
+  const tasksListData = getTasks();
+
   const [tasksList, setTasksList] = React.useState([...tasksListData]);
   const dropdownState = React.useRef({
     selectedStatus: "",
@@ -31,43 +33,14 @@ export default function App() {
       tasks = result;
     }
 
-    switch (statusValue) {
-      case status.IMPORTANT:
-        tasks = tasks.filter((task) => task.important);
-        break;
+    // console.log(statusValue);
 
-      case status.ACTIVE:
-        tasks = tasks.filter((task) => {
-          return (
-            task.created_at !== "" &&
-            task.started_at === "" &&
-            task.finished_at === ""
-          );
-        });
-        break;
-
-      case status.STARTED:
-        tasks = tasks.filter((task) => {
-          return (
-            task.created_at !== "" &&
-            task.started_at !== "" &&
-            task.finished_at === ""
-          );
-        });
-        break;
-
-      case status.DONE:
-        tasks = tasks.filter((task) => {
-          return (
-            task.created_at !== "" &&
-            task.started_at !== "" &&
-            task.finished_at !== ""
-          );
-        });
-        break;
-
-      default:
-        tasks = [...tasksListData];
+    if (statusValue === "") {
+      tasks = [...tasksListData];
+    } else if (statusValue === Status.IMPORTANT) {
+      tasks = tasks.filter((task) => task.important);
+    } else if (statusValue !== Status.IMPORTANT) {
+      tasks = tasks.filter((task) => task.status === statusValue);
     }
 
     dropdownState.current.result = [...tasks];
@@ -101,7 +74,7 @@ export default function App() {
     setTasksList([...tasks]);
   }
 
-  console.log(JSON.stringify(searchState.current.result, null, 2));
+  // console.log(JSON.stringify(searchState.current.result, null, 2));
 
   return (
     <div className="app">

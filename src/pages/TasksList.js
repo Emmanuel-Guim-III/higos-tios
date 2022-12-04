@@ -42,11 +42,19 @@ export default function TasksListView(props) {
             if (task.id) {
               return (
                 <Table.Row key={task.id} warning={task.important}>
-                  <Table.Cell content={<CustomCheckbox value={""} />} />
+                  <Table.Cell
+                    content={
+                      <CustomCheckbox
+                        initValue={task.status}
+                        // onClick={(status) => {
+                        //   console.log(`${status}`);
+                        // }}
+                      />
+                    }
+                  />
                   <Table.Cell
                     content={task.id}
                     onClick={() => {
-                      console.log("🤢");
                       setSelectedTask({ ...task });
                     }}
                   />
