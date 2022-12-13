@@ -38,15 +38,15 @@ export default function SearchBar(props) {
           return;
         }
 
-        const re = new RegExp(_.escapeRegExp(data.value), "i");
+        const re = new RegExp(_.escapeRegExp(data.value.toLowerCase()), "i");
         const isMatch = (result) => {
           return (
-            re.test(result.id) ||
-            re.test(result.title) ||
-            re.test(result.notes) ||
-            re.test(result.created_at) ||
-            re.test(result.started_at) ||
-            re.test(result.finished_at)
+            re.test(result.id.toLowerCase()) ||
+            re.test(result.title.toLowerCase()) ||
+            re.test(result.notes.toLowerCase()) ||
+            re.test(result.created_at.toLowerCase()) ||
+            re.test(result.started_at.toLowerCase()) ||
+            re.test(result.finished_at.toLowerCase())
           );
         };
 

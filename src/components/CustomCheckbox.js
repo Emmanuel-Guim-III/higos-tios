@@ -27,11 +27,9 @@ export default function CustomCheckbox(props) {
       setCurrentStatus(statusOptions[nextStatusKey]);
     }
   }
+
   return (
-    <div
-      className="custom-checkbox"
-      onClick={() => _updateStatus(currentStatus.key)}
-    >
+    <div onClick={() => _updateStatus(currentStatus.key)}>
       <Popup
         content={currentStatus.text}
         trigger={<Icon name={currentStatus.icon} size="large" />}

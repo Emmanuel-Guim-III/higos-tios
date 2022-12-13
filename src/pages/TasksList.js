@@ -1,95 +1,107 @@
 import React from "react";
-import { Table } from "semantic-ui-react";
+import { Container, Dropdown, Grid } from "semantic-ui-react";
+import { TasksContext } from "../store/TasksStore";
 
-import CustomCheckbox from "../components/CustomCheckbox";
-import ViewingModal from "../components/ViewingModal";
-import usePrevious from "../utils/usePrevious";
+import "../App.scss";
+import AddingModal from "../components/AddingModal";
+import SearchBar from "../components/SearchBar";
+import TasksListTable from "../components/TasksListTable";
+import Status from "../constants/status";
 
-export default function TasksListView(props) {
-  const [tasksList, setTasksList] = React.useState([...props.data]);
-  const [selectedTask, setSelectedTask] = React.useState({});
-  const [isViewModalOpen, setIsViewModalOpen] = React.useState(false);
+const statusOptions = [
+  { key: 0, text: Status.IMPORTANT, value: Status.IMPORTANT },
+  { key: 1, text: Status.ACTIVE, value: Status.ACTIVE },
+  { key: 2, text: Status.STARTED, value: Status.STARTED },
+  { key: 3, text: Status.DONE, value: Status.DONE },
+];
 
-  const prevSelectedTask = usePrevious(selectedTask);
+export default function TasksList() {
+  const [tasksStore] = React.useContext(TasksContext);
+  const [tasksList, setTasksList] = React.useState([...tasksStore]);
 
-  React.useEffect(() => {
-    setTasksList([...props.data]);
-  }, [props.data]);
+  const searchState = React.useRef({ query: "", result: [...tasksList] });
 
-  React.useEffect(() => {
-    if (prevSelectedTask && selectedTask !== prevSelectedTask) {
-      setIsViewModalOpen(true);
+  const dropdownState = React.useRef({
+    selectedStatus: "",
+    result: [...tasksList],
+  });
+
+  function filterListByStatus(statusValue) {
+    let tasks = [...tasksStore];
+    const { result } = searchState.current;
+
+    if (statusValue === "") {
+      tasks = result.length > 0 ? [...tasksList] : [...tasksStore];
     }
-  }, [selectedTask, prevSelectedTask]);
+    //
+    else if (statusValue === Status.IMPORTANT) {
+      tasks = tasks.filter((task) => task.important);
+    }
+    //
+    else {
+      tasks = tasks.filter((task) => task.status === statusValue);
+    }
+
+    dropdownState.current.result = [...tasks];
+    dropdownState.current.selectedStatus = statusValue;
+
+    setTasksList([...tasks]);
+  }
+
+  function handleSearchChange(state) {
+    const { query, result } = state;
+
+    const filterByQuery = (list) => {
+      if (query.length === 0) {
+        return list;
+      }
+
+      if (result.length > 0) {
+        return [...result];
+      } else {
+        return [];
+      }
+    };
+
+    const searchStateResult = filterByQuery([...tasksList]);
+    searchState.current.query = query;
+    searchState.current.result = [...searchStateResult];
+
+    const tasksFilteredByStatus = dropdownState.current.result;
+    const tasks = filterByQuery(tasksFilteredByStatus);
+
+    setTasksList([...tasks]);
+  }
 
   return (
-    <React.Fragment>
-      <Table basic="very" celled selectable>
-        <Table.Header>
-          <Table.Row>
-            <Table.HeaderCell content="" />
-            <Table.HeaderCell content="Ticket number" />
-            <Table.HeaderCell content="Title" />
-            <Table.HeaderCell content="Notes" />
-            <Table.HeaderCell content="Created at" />
-            <Table.HeaderCell content="Started at" />
-            <Table.HeaderCell content="Finished at" />
-          </Table.Row>
-        </Table.Header>
+    <Container className="tasks-list">
+      <Grid>
+        <Grid.Column width={8}>
+          <SearchBar
+            data={tasksStore}
+            onSearchChange={(state) => handleSearchChange(state)}
+          />
+        </Grid.Column>
 
-        <Table.Body>
-          {tasksList.map((task) => {
-            if (task.id) {
-              return (
-                <Table.Row key={task.id} warning={task.important}>
-                  <Table.Cell
-                    content={
-                      <CustomCheckbox
-                        initValue={task.status}
-                        // onClick={(status) => {
-                        //   console.log(`${status}`);
-                        // }}
-                      />
-                    }
-                  />
-                  <Table.Cell
-                    content={task.id}
-                    onClick={() => {
-                      setSelectedTask({ ...task });
-                    }}
-                  />
-                  <Table.Cell
-                    content={task.title}
-                    onClick={() => setSelectedTask({ ...task })}
-                  />
-                  <Table.Cell
-                    content={task.notes}
-                    onClick={() => setSelectedTask({ ...task })}
-                  />
-                  <Table.Cell
-                    content={task.created_at}
-                    onClick={() => setSelectedTask({ ...task })}
-                  />
-                  <Table.Cell
-                    content={task.started_at}
-                    onClick={() => setSelectedTask({ ...task })}
-                  />
-                  <Table.Cell
-                    content={task.finished_at}
-                    onClick={() => setSelectedTask({ ...task })}
-                  />
-                </Table.Row>
-              );
-            }
-          })}
-        </Table.Body>
-      </Table>
+        <Grid.Column width={8} textAlign="right">
+          <Dropdown
+            className="icon"
+            button
+            labeled
+            clearable
+            icon="filter"
+            placeholder="Filter"
+            options={statusOptions}
+            onChange={(e, data) => filterListByStatus(data.value)}
+          />
+        </Grid.Column>
 
-      <ViewingModal
-        task={{ ...selectedTask }}
-        isOpen={isViewModalOpen}
-        onClose={() => setIsViewModalOpen(false)}
-      />
-    </React.Fragment>
+        <Grid.Row>
+          <TasksListTable data={tasksList} />
+        </Grid.Row>
+      </Grid>
+
+      <AddingModal />
+    </Container>
   );
 }
