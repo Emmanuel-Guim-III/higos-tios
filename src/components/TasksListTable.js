@@ -6,15 +6,15 @@ import ViewingModal from "./ViewingModal";
 import usePrevious from "../utils/usePrevious";
 
 export default function TasksListTable(props) {
-  const [tasksList, setTasksList] = React.useState([...props.data]);
+  const [tasksList, setTasksList] = React.useState([...props.tasks]);
   const [selectedTask, setSelectedTask] = React.useState({});
   const [isViewModalOpen, setIsViewModalOpen] = React.useState(false);
 
   const prevSelectedTask = usePrevious(selectedTask);
 
   React.useEffect(() => {
-    setTasksList([...props.data]);
-  }, [props.data]);
+    setTasksList([...props.tasks]);
+  }, [props.tasks]);
 
   React.useEffect(() => {
     if (prevSelectedTask && selectedTask !== prevSelectedTask) {
@@ -47,9 +47,12 @@ export default function TasksListTable(props) {
                     content={
                       <CustomCheckbox
                         initValue={task.status}
-                        // onClick={(status) => {
-                        //   console.log(`${status}`);
-                        // }}
+                        onClick={(status) => {
+                          props.onTaskStatusUpdate({
+                            taskId: task.id,
+                            status: status,
+                          });
+                        }}
                       />
                     }
                   />

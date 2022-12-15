@@ -36,7 +36,6 @@ const TasksStore = ({ children }) => {
 
     return result;
   }
-
   React.useEffect(() => {
     const tasksWithStatus = _setStatusForEachTask(tasksListData);
     setTasksList([...tasksWithStatus]);

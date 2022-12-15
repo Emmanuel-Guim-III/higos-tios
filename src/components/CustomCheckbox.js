@@ -18,21 +18,22 @@ export default function CustomCheckbox(props) {
     (optn) => optn.text === props.initValue
   );
 
-  const [currentStatus, setCurrentStatus] = useState(initialStatus);
+  const [status, setStatus] = useState(initialStatus);
 
-  function _updateStatus(currentStatusKey) {
-    if (currentStatusKey < 2) {
-      const nextStatusKey = currentStatusKey + 1;
+  function _updateStatus(statusKey) {
+    if (statusKey < 2) {
+      const nextStatusKey = statusKey + 1;
 
-      setCurrentStatus(statusOptions[nextStatusKey]);
+      setStatus(statusOptions[nextStatusKey]);
+      props.onClick(statusOptions[nextStatusKey].text);
     }
   }
 
   return (
-    <div onClick={() => _updateStatus(currentStatus.key)}>
+    <div onClick={() => _updateStatus(status.key)}>
       <Popup
-        content={currentStatus.text}
-        trigger={<Icon name={currentStatus.icon} size="large" />}
+        content={status.text}
+        trigger={<Icon name={status.icon} size="large" />}
         basic
         size="mini"
       />

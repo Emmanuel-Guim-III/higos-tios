@@ -7,6 +7,7 @@ import AddingModal from "../components/AddingModal";
 import SearchBar from "../components/SearchBar";
 import TasksListTable from "../components/TasksListTable";
 import Status from "../constants/status";
+import { dateTimeNow } from "../utils/dateAndTime";
 
 const statusOptions = [
   { key: 0, text: Status.IMPORTANT, value: Status.IMPORTANT },
@@ -16,7 +17,7 @@ const statusOptions = [
 ];
 
 export default function TasksList() {
-  const [tasksStore] = React.useContext(TasksContext);
+  const [tasksStore, setTasksStore] = React.useContext(TasksContext);
   const [tasksList, setTasksList] = React.useState([...tasksStore]);
 
   const searchState = React.useRef({ query: "", result: [...tasksList] });
@@ -73,6 +74,28 @@ export default function TasksList() {
     setTasksList([...tasks]);
   }
 
+  function _handleTaskStatusUpdate(data) {
+    const { taskId, status } = data;
+
+    const updatedList = (current) =>
+      current.map((task) => {
+        if (task.id === taskId) {
+          const newTask =
+            status === Status.STARTED
+              ? { ...task, status: status, started_at: dateTimeNow() }
+              : { ...task, status: status, finished_at: dateTimeNow() };
+
+          return newTask;
+        }
+
+        return task;
+      });
+
+    setTasksStore(updatedList);
+  }
+
+  console.log(tasksStore);
+
   return (
     <Container className="tasks-list">
       <Grid>
@@ -97,7 +120,10 @@ export default function TasksList() {
         </Grid.Column>
 
         <Grid.Row>
-          <TasksListTable data={tasksList} />
+          <TasksListTable
+            tasks={tasksStore}
+            onTaskStatusUpdate={_handleTaskStatusUpdate}
+          />
         </Grid.Row>
       </Grid>
 
