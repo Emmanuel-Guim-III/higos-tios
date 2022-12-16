@@ -28,7 +28,7 @@ export default function TasksList() {
     result: [...tasksList],
   });
 
-  function filterListByStatus(statusValue) {
+  function _filterListByStatus(statusValue) {
     let tasks = [...tasksStore];
     const { result } = searchState.current;
 
@@ -50,7 +50,7 @@ export default function TasksList() {
     setTasksList([...tasks]);
   }
 
-  function handleSearchChange(state) {
+  function _handleSearchChange(state) {
     const { query, result } = state;
 
     const filterByQuery = (list) => {
@@ -75,33 +75,13 @@ export default function TasksList() {
     setTasksList([...tasks]);
   }
 
-  function _handleTaskStatusUpdate(data) {
-    const { taskId, status } = data;
-
-    const updatedList = (current) =>
-      current.map((task) => {
-        if (task.id === taskId) {
-          const newTask =
-            status === Status.STARTED
-              ? { ...task, status: status, started_at: dateTimeNow() }
-              : { ...task, status: status, finished_at: dateTimeNow() };
-
-          return newTask;
-        }
-
-        return task;
-      });
-
-    setTasksStore(updatedList);
-  }
-
-  function _handleSubmitForm(data) {
-    const { title, notes, isImportant } = data;
+  function _handleTaskAdd(task) {
+    const { title, notes, isImportant } = task;
 
     const lastTask = _.last(tasksStore);
     const lastTaskId = parseInt(lastTask.id) + 1;
 
-    const newEntry = {
+    const newTask = {
       id: String(lastTaskId).padStart(4, "0"),
       title,
       notes,
@@ -112,7 +92,7 @@ export default function TasksList() {
       status: Status.ACTIVE,
     };
 
-    setTasksStore([...tasksStore, newEntry]);
+    setTasksStore([...tasksStore, newTask]);
   }
 
   console.log(tasksStore);
@@ -123,7 +103,7 @@ export default function TasksList() {
         <Grid.Column width={8}>
           <SearchBar
             data={tasksStore}
-            onSearchChange={(state) => handleSearchChange(state)}
+            onSearchChange={(state) => _handleSearchChange(state)}
           />
         </Grid.Column>
 
@@ -136,19 +116,16 @@ export default function TasksList() {
             icon="filter"
             placeholder="Filter"
             options={statusOptions}
-            onChange={(e, data) => filterListByStatus(data.value)}
+            onChange={(e, data) => _filterListByStatus(data.value)}
           />
         </Grid.Column>
 
         <Grid.Row>
-          <TasksListTable
-            tasks={tasksStore}
-            onTaskStatusUpdate={_handleTaskStatusUpdate}
-          />
+          <TasksListTable tasks={tasksStore} setTasks={setTasksStore} />
         </Grid.Row>
       </Grid>
 
-      <AddingModal onSubmit={_handleSubmitForm} />
+      <AddingModal onSubmit={_handleTaskAdd} />
     </Container>
   );
 }

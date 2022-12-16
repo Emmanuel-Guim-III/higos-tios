@@ -4,6 +4,8 @@ import { Table } from "semantic-ui-react";
 import CustomCheckbox from "./CustomCheckbox";
 import ViewingModal from "./ViewingModal";
 import usePrevious from "../utils/usePrevious";
+import Status from "../constants/status";
+import { dateTimeNow } from "../utils/dateAndTime";
 
 export default function TasksListTable(props) {
   const [tasksList, setTasksList] = React.useState([...props.tasks]);
@@ -11,6 +13,46 @@ export default function TasksListTable(props) {
   const [isViewModalOpen, setIsViewModalOpen] = React.useState(false);
 
   const prevSelectedTask = usePrevious(selectedTask);
+
+  function _handleTaskStatusUpdate(taskId, status) {
+    const updatedList = (currentList) =>
+      currentList.map((tsk) => {
+        if (tsk.id === taskId) {
+          const newTask =
+            status === Status.STARTED
+              ? { ...tsk, status: status, started_at: dateTimeNow() }
+              : { ...tsk, status: status, finished_at: dateTimeNow() };
+
+          return newTask;
+        }
+
+        return tsk;
+      });
+
+    props.setTasks(updatedList);
+  }
+
+  function _handleTaskUpdate(task) {
+    const updatedList = (currentList) =>
+      currentList.map((tsk) => {
+        if (tsk.id === task.id) {
+          return { ...task };
+        }
+
+        return tsk;
+      });
+
+    props.setTasks(updatedList);
+  }
+
+  function _handleTaskDelete(taskId) {
+    const updatedList = (currentList) =>
+      currentList.filter((tsk) => {
+        return tsk.id !== taskId;
+      });
+
+    props.setTasks(updatedList);
+  }
 
   React.useEffect(() => {
     setTasksList([...props.tasks]);
@@ -48,10 +90,7 @@ export default function TasksListTable(props) {
                       <CustomCheckbox
                         initValue={task.status}
                         onClick={(status) => {
-                          props.onTaskStatusUpdate({
-                            taskId: task.id,
-                            status: status,
-                          });
+                          _handleTaskStatusUpdate(task.id, status);
                         }}
                       />
                     }
@@ -93,6 +132,8 @@ export default function TasksListTable(props) {
         task={{ ...selectedTask }}
         isOpen={isViewModalOpen}
         onClose={() => setIsViewModalOpen(false)}
+        onTaskUpdate={_handleTaskUpdate}
+        onTaskDelete={_handleTaskDelete}
       />
     </React.Fragment>
   );

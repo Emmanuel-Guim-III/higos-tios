@@ -1,12 +1,19 @@
 import React from "react";
 import { Button, Modal, Form } from "semantic-ui-react";
 
+const Field = {
+  TITLE: "title",
+  NOTES: "notes",
+  STARTED_AT: "started_at",
+  FINISHED_AT: "finished_at",
+};
+
 export default function ViewingModal(props) {
   const [task, setTask] = React.useState({ ...props.task });
   const [isEditMode, setIsEditMode] = React.useState(false);
   const [isFormChanged, setIsFormChanged] = React.useState(false);
   const [isConfirmModalOpen, setIsConfirmModalOpen] = React.useState(false);
-  const [confirmModalField, setConfirmModalField] = React.useState("");
+  const [confirmDeleteField, setConfirmDeleteField] = React.useState("");
 
   React.useEffect(() => {
     setTask({ ...props.task });
@@ -20,15 +27,8 @@ export default function ViewingModal(props) {
     }
   }, [task, props.task]);
 
-  function handleChange(event, field) {
-    const value = event.target.value;
-    const updatedTask = { ...task };
-
-    updatedTask[field] = value;
-    setTask((task) => ({
-      ...task,
-      ...updatedTask,
-    }));
+  function _handleChange(field, value) {
+    setTask({ ...task, [field]: value });
   }
 
   const editModalContentUI = (
@@ -46,13 +46,13 @@ export default function ViewingModal(props) {
             label="Title"
             defaultValue={task.title}
             width={13}
-            onChange={(event) => handleChange(event, "title")}
+            onChange={(e) => _handleChange(Field.TITLE, e.target.value)}
           />
         </Form.Group>
         <Form.TextArea
           label="Notes"
           defaultValue={task.notes}
-          onChange={(event) => handleChange(event, "notes")}
+          onChange={(e) => _handleChange(Field.NOTES, e.target.value)}
         />
         <Form.Group widths="equal">
           <Form.Input
@@ -64,12 +64,12 @@ export default function ViewingModal(props) {
           <Form.Input
             label="Started at"
             defaultValue={task.started_at}
-            onChange={(event) => handleChange(event, "started_at")}
+            onChange={(e) => _handleChange(Field.STARTED_AT, e.target.value)}
           />
           <Form.Input
             label="Finished at"
             defaultValue={task.finished_at}
-            onChange={(event) => handleChange(event, "finished_at")}
+            onChange={(e) => _handleChange(Field.FINISHED_AT, e.target.value)}
           />
         </Form.Group>
 
@@ -91,7 +91,7 @@ export default function ViewingModal(props) {
           content="Save"
           labelPosition="left"
           icon="save"
-          onClick={() => props.onClose(false)}
+          onClick={() => props.onTaskUpdate(task)}
           positive
         />
       ) : (
@@ -198,9 +198,8 @@ export default function ViewingModal(props) {
             <Form.Input
               label="Are you sure you want to delete task 0001?"
               placeholder="Type 'Yes'"
-              onChange={(event) => {
-                const value = event.target.value;
-                setConfirmModalField(value);
+              onChange={(e) => {
+                setConfirmDeleteField(e.target.value);
               }}
             />
           </Form>
@@ -213,7 +212,8 @@ export default function ViewingModal(props) {
           <Button
             content="Delete"
             negative
-            disabled={confirmModalField !== "Yes"}
+            disabled={confirmDeleteField !== "Yes"}
+            onClick={() => props.onTaskDelete(task.id)}
           />
         </Modal.Actions>
       </Modal>
