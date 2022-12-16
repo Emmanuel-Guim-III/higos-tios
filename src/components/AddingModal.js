@@ -11,6 +11,7 @@ export default function AddingModal(props) {
     const form = { title, notes, isImportant };
 
     props.onSubmit(form);
+    setIsOpen(false);
   }
 
   return (

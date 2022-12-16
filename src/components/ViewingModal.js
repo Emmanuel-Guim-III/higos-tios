@@ -213,7 +213,11 @@ export default function ViewingModal(props) {
             content="Delete"
             negative
             disabled={confirmDeleteField !== "Yes"}
-            onClick={() => props.onTaskDelete(task.id)}
+            onClick={() => {
+              props.onTaskDelete(task.id);
+              setIsConfirmModalOpen(false);
+              props.onClose();
+            }}
           />
         </Modal.Actions>
       </Modal>
