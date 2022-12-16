@@ -1,6 +1,7 @@
 import React from "react";
 import { Container, Dropdown, Grid } from "semantic-ui-react";
 import { TasksContext } from "../store/TasksStore";
+import _ from "lodash";
 
 import "../App.scss";
 import AddingModal from "../components/AddingModal";
@@ -94,6 +95,26 @@ export default function TasksList() {
     setTasksStore(updatedList);
   }
 
+  function _handleSubmitForm(data) {
+    const { title, notes, isImportant } = data;
+
+    const lastTask = _.last(tasksStore);
+    const lastTaskId = parseInt(lastTask.id) + 1;
+
+    const newEntry = {
+      id: String(lastTaskId).padStart(4, "0"),
+      title,
+      notes,
+      important: isImportant,
+      created_at: dateTimeNow(),
+      started_at: null,
+      finished_at: null,
+      status: Status.ACTIVE,
+    };
+
+    setTasksStore([...tasksStore, newEntry]);
+  }
+
   console.log(tasksStore);
 
   return (
@@ -127,7 +148,7 @@ export default function TasksList() {
         </Grid.Row>
       </Grid>
 
-      <AddingModal />
+      <AddingModal onSubmit={_handleSubmitForm} />
     </Container>
   );
 }

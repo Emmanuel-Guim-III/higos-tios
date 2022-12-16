@@ -22,10 +22,8 @@ export default function CustomCheckbox(props) {
 
   function _updateStatus(statusKey) {
     if (statusKey < 2) {
-      const nextStatusKey = statusKey + 1;
-
-      setStatus(statusOptions[nextStatusKey]);
-      props.onClick(statusOptions[nextStatusKey].text);
+      setStatus(statusOptions[statusKey + 1]);
+      props.onClick(statusOptions[statusKey + 1].text);
     }
   }
 
