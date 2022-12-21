@@ -1,9 +1,9 @@
 import React from "react";
 import { Table } from "semantic-ui-react";
+import _ from "lodash";
 
 import CustomCheckbox from "./CustomCheckbox";
 import ViewingModal from "./ViewingModal";
-import usePrevious from "../utils/usePrevious";
 import Status from "../constants/status";
 import { dateTimeNow } from "../utils/dateAndTime";
 
@@ -62,7 +62,7 @@ export default function TasksListTable(props) {
               ? { ...tsk, status: Status.ACTIVE, started_at: "" }
               : { ...tsk, status: Status.STARTED, finished_at: "" };
 
-          setSelectedTask(newTask);
+          setSelectedTask({ ...newTask });
           return newTask;
         }
 
@@ -72,13 +72,11 @@ export default function TasksListTable(props) {
     props.setTasks(updatedList);
   }
 
-  const prevSelectedTask = usePrevious(selectedTask);
-
   React.useEffect(() => {
-    if (prevSelectedTask && selectedTask !== prevSelectedTask) {
+    if (!_.isEmpty(selectedTask)) {
       setIsViewModalOpen(true);
     }
-  }, [selectedTask, prevSelectedTask]);
+  }, [selectedTask]);
 
   return (
     <React.Fragment>
@@ -114,28 +112,28 @@ export default function TasksListTable(props) {
                   <Table.Cell
                     content={task.id}
                     onClick={() => {
-                      setSelectedTask(task);
+                      setSelectedTask({ ...task });
                     }}
                   />
                   <Table.Cell
                     content={task.title}
-                    onClick={() => setSelectedTask(task)}
+                    onClick={() => setSelectedTask({ ...task })}
                   />
                   <Table.Cell
                     content={task.notes}
-                    onClick={() => setSelectedTask(task)}
+                    onClick={() => setSelectedTask({ ...task })}
                   />
                   <Table.Cell
                     content={task.created_at}
-                    onClick={() => setSelectedTask(task)}
+                    onClick={() => setSelectedTask({ ...task })}
                   />
                   <Table.Cell
                     content={task.started_at}
-                    onClick={() => setSelectedTask(task)}
+                    onClick={() => setSelectedTask({ ...task })}
                   />
                   <Table.Cell
                     content={task.finished_at}
-                    onClick={() => setSelectedTask(task)}
+                    onClick={() => setSelectedTask({ ...task })}
                   />
                 </Table.Row>
               );
