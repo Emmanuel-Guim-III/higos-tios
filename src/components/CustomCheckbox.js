@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { Icon, Popup } from "semantic-ui-react";
 
 import Status from "../constants/status";
@@ -14,11 +14,15 @@ const statusOptions = [
 ];
 
 export default function CustomCheckbox(props) {
-  const initialStatus = statusOptions.find(
-    (optn) => optn.text === props.initValue
-  );
+  const [status, setStatus] = React.useState({});
 
-  const [status, setStatus] = useState(initialStatus);
+  React.useEffect(() => {
+    const initialStatus = statusOptions.find(
+      (optn) => optn.text === props.status
+    );
+
+    setStatus(initialStatus);
+  }, [props.status]);
 
   function _updateStatus(statusKey) {
     if (statusKey < 2) {

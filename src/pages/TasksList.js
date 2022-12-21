@@ -95,8 +95,6 @@ export default function TasksList() {
     setTasksStore([...tasksStore, newTask]);
   }
 
-  console.log(tasksStore);
-
   return (
     <Container className="tasks-list">
       <Grid>

@@ -1,5 +1,6 @@
 import React from "react";
-import { Button, Modal, Form } from "semantic-ui-react";
+import { Button, Modal, Form, Grid } from "semantic-ui-react";
+import Status from "../constants/status";
 
 const Field = {
   TITLE: "title",
@@ -9,14 +10,14 @@ const Field = {
 };
 
 export default function ViewingModal(props) {
-  const [task, setTask] = React.useState({ ...props.task });
+  const [task, setTask] = React.useState(props.task);
   const [isEditMode, setIsEditMode] = React.useState(false);
   const [isFormChanged, setIsFormChanged] = React.useState(false);
   const [isConfirmModalOpen, setIsConfirmModalOpen] = React.useState(false);
   const [confirmDeleteField, setConfirmDeleteField] = React.useState("");
 
   React.useEffect(() => {
-    setTask({ ...props.task });
+    setTask(props.task);
   }, [props.task]);
 
   React.useEffect(() => {
@@ -25,19 +26,25 @@ export default function ViewingModal(props) {
     } else {
       setIsFormChanged(true);
     }
-  }, [task, props.task]);
+  }, [task]);
 
   function _handleChange(field, value) {
     setTask({ ...task, [field]: value });
   }
+
+  function _resetStatus(task) {
+    props.onStatusReset(task);
+  }
+
+  // console.log(task);
 
   const editModalContentUI = (
     <Modal.Content>
       <Form>
         <Form.Group>
           <Form.Input
-            label="Ticket Numbersss"
-            value={task.id}
+            label="Ticket Number"
+            defaultValue={task.id}
             width={3}
             icon="lock"
             readOnly
@@ -57,19 +64,21 @@ export default function ViewingModal(props) {
         <Form.Group widths="equal">
           <Form.Input
             label="Added at"
-            value={task.created_at}
+            defaultValue={task.created_at}
             icon="lock"
             readOnly
           />
           <Form.Input
             label="Started at"
-            defaultValue={task.started_at}
+            value={task.started_at}
             onChange={(e) => _handleChange(Field.STARTED_AT, e.target.value)}
+            readOnly
           />
           <Form.Input
             label="Finished at"
-            defaultValue={task.finished_at}
+            value={task.finished_at}
             onChange={(e) => _handleChange(Field.FINISHED_AT, e.target.value)}
+            readOnly
           />
         </Form.Group>
 
@@ -78,13 +87,39 @@ export default function ViewingModal(props) {
           checked={task.important}
           onClick={() => console.log("clicked checkbox")}
         />
+        {task.status !== Status.ACTIVE ? (
+          <Grid>
+            <Grid.Column
+              textAlign={task.status === Status.STARTED ? "center" : "right"}
+            >
+              <Button
+                content={
+                  task.status === Status.STARTED
+                    ? 'Reset "Started at" field'
+                    : 'Reset "Finished at" field'
+                }
+                icon="undo"
+                basic
+                color="red"
+                onClick={() => _resetStatus(task)}
+              />
+            </Grid.Column>
+          </Grid>
+        ) : (
+          <></>
+        )}
       </Form>
     </Modal.Content>
   );
 
   const editModalActionsUI = (
     <Modal.Actions>
-      <Button content="Cancel" onClick={() => setIsEditMode(false)} />
+      <Button
+        content="Back to View"
+        icon="eye"
+        labelPosition="left"
+        onClick={() => setIsEditMode(false)}
+      />
 
       {isFormChanged ? (
         <Button
@@ -110,6 +145,7 @@ export default function ViewingModal(props) {
     <React.Fragment>
       <Modal
         size="small"
+        style={{ color: "red" }}
         onClose={() => {
           props.onClose(false);
           setIsEditMode(false);
@@ -126,38 +162,34 @@ export default function ViewingModal(props) {
               <Form.Group>
                 <Form.Input
                   label="Ticket Number"
-                  value={props.task.id}
+                  defaultValue={task.id}
                   width={3}
                   readOnly
                 />
                 <Form.Input
                   label="Title"
-                  defaultValue={props.task.title}
+                  defaultValue={task.title}
                   width={13}
                   readOnly
                 />
               </Form.Group>
 
-              <Form.TextArea
-                label="Notes"
-                defaultValue={props.task.notes}
-                readOnly
-              />
+              <Form.TextArea label="Notes" defaultValue={task.notes} readOnly />
 
               <Form.Group widths="equal">
                 <Form.Input
                   label="Added at"
-                  value={props.task.created_at}
+                  defaultValue={task.created_at}
                   readOnly
                 />
                 <Form.Input
                   label="Started at"
-                  defaultValue={props.task.started_at}
+                  value={task.started_at}
                   readOnly
                 />
                 <Form.Input
                   label="Finished at"
-                  defaultValue={props.task.finished_at}
+                  value={task.finished_at}
                   readOnly
                 />
               </Form.Group>
@@ -165,7 +197,7 @@ export default function ViewingModal(props) {
               <Form.Checkbox
                 label="Important"
                 readOnly
-                checked={props.task.important}
+                checked={task.important}
               />
             </Form>
           </Modal.Content>
@@ -177,7 +209,7 @@ export default function ViewingModal(props) {
           <Modal.Actions>
             <Button content="Close" onClick={() => props.onClose(false)} />
             <Button
-              content="Edit"
+              content="Edit Task"
               labelPosition="left"
               icon="edit"
               onClick={() => setIsEditMode(true)}

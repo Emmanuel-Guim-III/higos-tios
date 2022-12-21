@@ -8,11 +8,8 @@ import Status from "../constants/status";
 import { dateTimeNow } from "../utils/dateAndTime";
 
 export default function TasksListTable(props) {
-  const [tasksList, setTasksList] = React.useState([...props.tasks]);
   const [selectedTask, setSelectedTask] = React.useState({});
   const [isViewModalOpen, setIsViewModalOpen] = React.useState(false);
-
-  const prevSelectedTask = usePrevious(selectedTask);
 
   function _handleTaskStatusUpdate(taskId, status) {
     const updatedList = (currentList) =>
@@ -54,9 +51,28 @@ export default function TasksListTable(props) {
     props.setTasks(updatedList);
   }
 
-  React.useEffect(() => {
-    setTasksList([...props.tasks]);
-  }, [props.tasks]);
+  function _handleStatusReset(task) {
+    const { id, status } = task;
+
+    const updatedList = (currentList) =>
+      currentList.map((tsk) => {
+        if (tsk.id === id) {
+          const newTask =
+            status === Status.STARTED
+              ? { ...tsk, status: Status.ACTIVE, started_at: "" }
+              : { ...tsk, status: Status.STARTED, finished_at: "" };
+
+          setSelectedTask(newTask);
+          return newTask;
+        }
+
+        return tsk;
+      });
+
+    props.setTasks(updatedList);
+  }
+
+  const prevSelectedTask = usePrevious(selectedTask);
 
   React.useEffect(() => {
     if (prevSelectedTask && selectedTask !== prevSelectedTask) {
@@ -80,7 +96,7 @@ export default function TasksListTable(props) {
         </Table.Header>
 
         <Table.Body>
-          {tasksList.map((task) => {
+          {props.tasks.map((task) => {
             // TODO: Room for enhancement.
             if (task.id && task.status) {
               return (
@@ -88,7 +104,7 @@ export default function TasksListTable(props) {
                   <Table.Cell
                     content={
                       <CustomCheckbox
-                        initValue={task.status}
+                        status={task.status}
                         onClick={(status) => {
                           _handleTaskStatusUpdate(task.id, status);
                         }}
@@ -98,28 +114,28 @@ export default function TasksListTable(props) {
                   <Table.Cell
                     content={task.id}
                     onClick={() => {
-                      setSelectedTask({ ...task });
+                      setSelectedTask(task);
                     }}
                   />
                   <Table.Cell
                     content={task.title}
-                    onClick={() => setSelectedTask({ ...task })}
+                    onClick={() => setSelectedTask(task)}
                   />
                   <Table.Cell
                     content={task.notes}
-                    onClick={() => setSelectedTask({ ...task })}
+                    onClick={() => setSelectedTask(task)}
                   />
                   <Table.Cell
                     content={task.created_at}
-                    onClick={() => setSelectedTask({ ...task })}
+                    onClick={() => setSelectedTask(task)}
                   />
                   <Table.Cell
                     content={task.started_at}
-                    onClick={() => setSelectedTask({ ...task })}
+                    onClick={() => setSelectedTask(task)}
                   />
                   <Table.Cell
                     content={task.finished_at}
-                    onClick={() => setSelectedTask({ ...task })}
+                    onClick={() => setSelectedTask(task)}
                   />
                 </Table.Row>
               );
@@ -129,11 +145,12 @@ export default function TasksListTable(props) {
       </Table>
 
       <ViewingModal
-        task={{ ...selectedTask }}
+        task={selectedTask}
         isOpen={isViewModalOpen}
         onClose={() => setIsViewModalOpen(false)}
         onTaskUpdate={_handleTaskUpdate}
         onTaskDelete={_handleTaskDelete}
+        onStatusReset={_handleStatusReset}
       />
     </React.Fragment>
   );
