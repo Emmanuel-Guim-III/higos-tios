@@ -87,8 +87,8 @@ export default function TasksList() {
       notes,
       important: isImportant,
       created_at: dateTimeNow(),
-      started_at: null,
-      finished_at: null,
+      started_at: "",
+      finished_at: "",
       status: Status.ACTIVE,
     };
 

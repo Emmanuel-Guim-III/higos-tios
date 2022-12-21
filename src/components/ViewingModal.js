@@ -1,5 +1,6 @@
+import _ from "lodash";
 import React from "react";
-import { Button, Modal, Form, Grid } from "semantic-ui-react";
+import { Button, Modal, Form, Grid, Popup } from "semantic-ui-react";
 import Status from "../constants/status";
 
 const Field = {
@@ -7,16 +8,29 @@ const Field = {
   NOTES: "notes",
   STARTED_AT: "started_at",
   FINISHED_AT: "finished_at",
+  IMPORTANT: "important",
 };
 
 export default function ViewingModal(props) {
   const [task, setTask] = React.useState(props.task);
+  const [confirmDeleteField, setConfirmDeleteField] = React.useState("");
   const [isEditMode, setIsEditMode] = React.useState(false);
   const [isFormChanged, setIsFormChanged] = React.useState(false);
   const [isConfirmModalOpen, setIsConfirmModalOpen] = React.useState(false);
-  const [confirmDeleteField, setConfirmDeleteField] = React.useState("");
+
+  function _handleChange(field, value) {
+    setTask({ ...task, [field]: value });
+  }
+
+  function _resetTime(status) {
+    status === Status.STARTED
+      ? setTask({ ...task, started_at: "", status: Status.ACTIVE })
+      : setTask({ ...task, finished_at: "", status: Status.STARTED });
+  }
 
   React.useEffect(() => {
+    setIsEditMode(false);
+
     setTask(props.task);
   }, [props.task]);
 
@@ -27,16 +41,6 @@ export default function ViewingModal(props) {
       setIsFormChanged(true);
     }
   }, [task]);
-
-  function _handleChange(field, value) {
-    setTask({ ...task, [field]: value });
-  }
-
-  function _resetStatus(task) {
-    props.onStatusReset(task);
-  }
-
-  // console.log(task);
 
   const editModalContentUI = (
     <Modal.Content>
@@ -85,23 +89,32 @@ export default function ViewingModal(props) {
         <Form.Checkbox
           label="Important"
           checked={task.important}
-          onClick={() => console.log("clicked checkbox")}
+          onClick={() => _handleChange(Field.IMPORTANT, !task.important)}
         />
         {task.status !== Status.ACTIVE ? (
           <Grid>
-            <Grid.Column
-              textAlign={task.status === Status.STARTED ? "center" : "right"}
-            >
-              <Button
+            <Grid.Column textAlign="center">
+              <Popup
                 content={
                   task.status === Status.STARTED
                     ? 'Reset "Started at" field'
                     : 'Reset "Finished at" field'
                 }
-                icon="undo"
+                trigger={
+                  <Button
+                    content={
+                      task.status === Status.STARTED
+                        ? "Started at"
+                        : "Finished at"
+                    }
+                    icon="undo"
+                    basic
+                    color="red"
+                    onClick={() => _resetTime(task.status)}
+                  />
+                }
                 basic
-                color="red"
-                onClick={() => _resetStatus(task)}
+                size="mini"
               />
             </Grid.Column>
           </Grid>
@@ -126,7 +139,10 @@ export default function ViewingModal(props) {
           content="Save"
           labelPosition="left"
           icon="save"
-          onClick={() => props.onTaskUpdate(task)}
+          onClick={() => {
+            props.onTaskUpdate(task);
+            props.onClose();
+          }}
           positive
         />
       ) : (
@@ -147,10 +163,9 @@ export default function ViewingModal(props) {
         size="small"
         style={{ color: "red" }}
         onClose={() => {
-          props.onClose(false);
-          setIsEditMode(false);
+          props.onClose();
         }}
-        open={props.isOpen}
+        open={!_.isEmpty(task)}
       >
         <Modal.Header>{isEditMode ? "Edit " : ""}Task</Modal.Header>
 
@@ -207,7 +222,7 @@ export default function ViewingModal(props) {
           editModalActionsUI
         ) : (
           <Modal.Actions>
-            <Button content="Close" onClick={() => props.onClose(false)} />
+            <Button content="Close" onClick={() => props.onClose()} />
             <Button
               content="Edit Task"
               labelPosition="left"

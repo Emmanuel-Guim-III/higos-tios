@@ -1,6 +1,5 @@
 import React from "react";
 import { Table } from "semantic-ui-react";
-import _ from "lodash";
 
 import CustomCheckbox from "./CustomCheckbox";
 import ViewingModal from "./ViewingModal";
@@ -9,7 +8,6 @@ import { dateTimeNow } from "../utils/dateAndTime";
 
 export default function TasksListTable(props) {
   const [selectedTask, setSelectedTask] = React.useState({});
-  const [isViewModalOpen, setIsViewModalOpen] = React.useState(false);
 
   function _handleTaskStatusUpdate(taskId, status) {
     const updatedList = (currentList) =>
@@ -51,33 +49,6 @@ export default function TasksListTable(props) {
     props.setTasks(updatedList);
   }
 
-  function _handleStatusReset(task) {
-    const { id, status } = task;
-
-    const updatedList = (currentList) =>
-      currentList.map((tsk) => {
-        if (tsk.id === id) {
-          const newTask =
-            status === Status.STARTED
-              ? { ...tsk, status: Status.ACTIVE, started_at: "" }
-              : { ...tsk, status: Status.STARTED, finished_at: "" };
-
-          setSelectedTask({ ...newTask });
-          return newTask;
-        }
-
-        return tsk;
-      });
-
-    props.setTasks(updatedList);
-  }
-
-  React.useEffect(() => {
-    if (!_.isEmpty(selectedTask)) {
-      setIsViewModalOpen(true);
-    }
-  }, [selectedTask]);
-
   return (
     <React.Fragment>
       <Table basic="very" celled selectable>
@@ -111,9 +82,7 @@ export default function TasksListTable(props) {
                   />
                   <Table.Cell
                     content={task.id}
-                    onClick={() => {
-                      setSelectedTask({ ...task });
-                    }}
+                    onClick={() => setSelectedTask({ ...task })}
                   />
                   <Table.Cell
                     content={task.title}
@@ -144,11 +113,9 @@ export default function TasksListTable(props) {
 
       <ViewingModal
         task={selectedTask}
-        isOpen={isViewModalOpen}
-        onClose={() => setIsViewModalOpen(false)}
+        onClose={() => setSelectedTask({})}
         onTaskUpdate={_handleTaskUpdate}
         onTaskDelete={_handleTaskDelete}
-        onStatusReset={_handleStatusReset}
       />
     </React.Fragment>
   );
